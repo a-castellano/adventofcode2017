@@ -28,7 +28,7 @@ while (my $row = <$fh>) {
   my $max = $numbers[0];
   my $min = $numbers[0];
 
-  foreach my $number (@numbers[ 1 .. @numbers -1 ])
+  foreach my $number ( @numbers[ 1 .. @numbers - 1 ] )
   {
     $max = $number if ( $max < $number );
     $min = $number if ( $min > $number );
