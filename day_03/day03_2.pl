@@ -229,5 +229,5 @@ while ( $current_value <= $number_to_find)
 }
 
 print "First value lager than $number_to_find is $value\n";
-#print "First value in $current_position is $value\n";
+#print "Value in $current_position is $value\n";
 
