@@ -61,7 +61,7 @@ my %seen;
 do
 {
 
-  $seen{join("|", @banks)} = 1;
+  $seen{join("|", @banks)} = $redistributions++;
 
   my ($max, $index) = get_max( \@banks );
   die "Fatal error there banks with negative values, check your code\n $!" if ($max < 0);
@@ -74,10 +74,11 @@ do
     $banks[$index]++;
   }
 
-  $redistributions++;
 
 }while(! $seen{join("|", @banks)});
 
-print "Number of redistributions = $redistributions\n";
+my $loop_size = $redistributions - $seen{join("|", @banks)};
+
+print "Loop size = $loop_size\n";
 
 exit 0;
