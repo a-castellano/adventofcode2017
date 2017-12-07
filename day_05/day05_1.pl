@@ -32,14 +32,14 @@ while (my $jump_offset = <$fh>) {
 close( $fh );
 
 my $number_of_steps = 0;
-my $current_possition = 0;
-my $offsets_exit_possition = scalar @offsets ;
+my $current_position = 0;
+my $offsets_exit_position = scalar @offsets ;
 
-while ($current_possition < $offsets_exit_possition)
+while ($current_position < $offsets_exit_position)
 {
-  my $jump_offset = $offsets[$current_possition];
-  $offsets[$current_possition]++;
-  $current_possition += $jump_offset;
+  my $jump_offset = $offsets[$current_position];
+  $offsets[$current_position]++;
+  $current_position += $jump_offset;
 
   $number_of_steps++;
 }
