@@ -3,9 +3,7 @@
 
 use strict;
 use warnings;
-use Tree::Simple;
-use Data::TreeDumper; # Provides DumpTree().
-use Data::Dumper; # Provides DumpTree().
+use Data::Dumper;
 
 
 sub create_node
