@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 # Álvaro Castellano Vela - 14/12/2017
 
-use strict;
 use warnings;
+use strict;
 
 sub knot_hash {
     my $input = $_[0];
@@ -97,8 +97,28 @@ sub knot_hash {
 
 }
 
-#Main
+sub fill_region {
+    my $row    = $_[0];
+    my $column = $_[1];
+    my @grid   = @{ $_[2] };
 
+    $grid[$row][$column] = '.';
+
+    if ( $grid[ $row - 1 ][$column] eq '#' ) {
+        fill_region( $row - 1, $column, \@grid );
+    }
+    if ( $grid[ $row + 1 ][$column] eq '#' ) {
+        fill_region( $row + 1, $column, \@grid );
+    }
+    if ( $grid[$row][ $column - 1 ] eq '#' ) {
+        fill_region( $row, $column - 1, \@grid );
+    }
+    if ( $grid[$row][ $column + 1 ] eq '#' ) {
+        fill_region( $row, $column + 1, \@grid );
+    }
+}
+
+#Main
 my $argssize;
 my @args;
 
@@ -109,18 +129,42 @@ if ( $argssize != 1 ) {
     exit -1;
 }
 
-my $input   = $ARGV[0];
-my $squares = 0;
+my $input = $ARGV[0];
 
-for my $row ( 0 .. 127 ) {
-    my $string         = $input . '-' . "$row";
-    my $hash           = knot_hash($string);
-    my $processed_hash = $hash;
-    $processed_hash =~ s/0//g;
-    my $row_squares = length $processed_hash;
-    $squares += $row_squares;
+my @grid;
+
+#fill grid with dots
+
+for my $row ( 0 .. 129 ) {
+    for my $column ( 0 .. 129 ) {
+        $grid[$row][$column] = '.';
+    }
 }
 
-print "Total squares -> $squares\n";
+for my $row ( 1 .. 128 ) {
+    my $real_row = $row - 1;
+    my $string   = $input . '-' . "$real_row";
+    my $hash     = knot_hash($string);
+    $hash =~ s/1/#/g;
+    $hash =~ s/0/./g;
+    my @processed_hash = split //, $hash;
+    for my $column ( 1 .. 128 ) {
+        $grid[$row][$column] = $processed_hash[ $column - 1 ];
+    }
+}
 
+# Find regions
+
+my $number_of_regions = 0;
+
+for my $row ( 1 .. 128 ) {
+    for my $column ( 1 .. 128 ) {
+        if ( $grid[$row][$column] eq '#' ) {
+            $number_of_regions += 1;
+            fill_region( $row, $column, \@grid );
+        }
+    }
+}
+
+print "Number of regions -> $number_of_regions\n";
 exit 0;
