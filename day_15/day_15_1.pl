@@ -20,7 +20,7 @@ my @args;
 $argssize = scalar @ARGV;
 
 if ( $argssize != 2 ) {
-    print STDERR "This script only accepts one arg.\n";
+    print STDERR "This script only accepts two args.\n";
     exit -1;
 }
 
