@@ -46,6 +46,27 @@ sub partner {
     return exchange( $first_position++, $second_position, \@programs );
 }
 
+sub perform_dance {
+    my @programs = @{ $_[0] };
+    my @dance    = @{ $_[1] };
+
+    for my $move (@dance) {
+        my ( $move_type, $first_part, $second_part ) =
+          $move =~ /(s|p|x)(\d+|[a-p])\/?(\d+|[a-p])?$/;
+        if ( $move_type eq "s" ) {
+            @programs = spin( $first_part, \@programs );
+        }
+        elsif ( $move_type eq "x" ) {
+            @programs = exchange( $first_part, $second_part, \@programs );
+        }
+        elsif ( $move_type eq "p" ) {
+            @programs = partner( $first_part, $second_part, \@programs );
+        }
+    }
+    return @programs;
+
+}
+
 #Main
 
 my $argssize;
@@ -67,26 +88,36 @@ my @programs = ( "a" .. "p" );
 
 my $line = <$fh>;
 close($fh);
-
 chomp $line;
+
+my %unique;
+my $duplicate_iteration;
+my $start_loop;
 
 my @dance = split /,/, $line;
 
-for my $move (@dance) {
-    my ( $move_type, $first_part, $second_part ) =
-      $move =~ /(s|p|x)(\d+|[a-p])\/?(\d+|[a-p])?$/;
-    if ( $move_type eq "s" ) {
-        @programs = spin( $first_part, \@programs );
+my $string_programs;
+$string_programs = join( "", @programs );
+$unique{$string_programs} = 0;
+for my $iteration ( 1 .. 1000000000 ) {
+    @programs = perform_dance( \@programs, \@dance );
+    $string_programs = join( "", @programs );
+    if ( !exists $unique{$string_programs} ) {
+        $unique{$string_programs} = $iteration;
     }
-    elsif ( $move_type eq "x" ) {
-        @programs = exchange( $first_part, $second_part, \@programs );
-    }
-    elsif ( $move_type eq "p" ) {
-        @programs = partner( $first_part, $second_part, \@programs );
+    else {
+        $duplicate_iteration = $iteration - $unique{$string_programs};
+        last;
     }
 }
+my $extra_iterations =
+  ( 1000000000 - $unique{$string_programs} ) % $duplicate_iteration;
 
-my $string_programs = join( "", @programs );
-print "Programs -> $string_programs\n";
+for my $iteration ( 1 .. $extra_iterations ) {
+    @programs = perform_dance( \@programs, \@dance );
+    $string_programs = join( "", @programs );
+}
+
+print "Programs after 1000000000 dances -> $string_programs\n";
 
 exit 0;
