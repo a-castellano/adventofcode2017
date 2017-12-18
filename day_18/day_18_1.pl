@@ -3,9 +3,6 @@
 
 use strict;
 use warnings;
-use Data::Dumper;
-
-#$current_position = process_instruction(\%registers,\@instructions, \$last_played, \$last_recovered, $current_position);
 
 sub process_instruction {
     my $registers        = $_[0];
@@ -112,7 +109,6 @@ open( my $fh, '<:encoding(UTF-8)', $filename )
   or die "Could not open file '$filename' $!";
 
 my @instructions;
-my $counter = 1;
 
 while ( my $line = <$fh> ) {
     chomp $line;
@@ -143,7 +139,6 @@ while ( my $line = <$fh> ) {
 
     push( @instructions, \%instruction );
 
-    $counter++;
 }
 
 my $end_position = scalar @instructions;
@@ -156,8 +151,6 @@ while ( $current_position < $end_position
 {
     $current_position =
       process_instruction( \%registers, \@instructions, $current_position );
-
-    #print "Current -> $current_position\n";
 }
 
 close($fh);
