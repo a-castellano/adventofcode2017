@@ -50,28 +50,46 @@ sub increment {
         $particles->[$i]{px} += $particles->[$i]{vx};
         $particles->[$i]{py} += $particles->[$i]{vy};
         $particles->[$i]{pz} += $particles->[$i]{vz};
-
-        $particles->[$i]{distance} =
-          abs( $particles->[$i]{px} ) +
-          abs( $particles->[$i]{py} ) +
-          abs( $particles->[$i]{pz} );
     }
 
 }
 
-sub min_particle {
+sub destroy_colliders {
     my $particles           = $_[0];
     my $number_of_particles = scalar @{$particles};
 
-    my $min          = $particles->[0]{distance};
-    my $min_particle = 0;
-    for ( my $i = 1 ; $i < $number_of_particles ; $i++ ) {
-        if ( $min > $particles->[$i]{distance} ) {
-            $min          = $particles->[$i]{distance};
-            $min_particle = $i;
+    my %colliders;
+    my @particles_to_destroy;
+
+    for ( my $i = 0 ; $i < $number_of_particles ; $i++ ) {
+        my $hash = join(
+            "|",
+            (
+                $particles->[$i]{px}, $particles->[$i]{py}, $particles->[$i]{pz}
+            )
+        );
+        if ( !exists $colliders{$hash} ) {
+            $colliders{$hash} = [];
+        }
+        push( @{ $colliders{$hash} }, $i );
+    }
+
+    # Destroy
+    for my $key ( keys %colliders ) {
+        if ( scalar @{ $colliders{$key} } > 1 ) {
+
+            for my $particle_to_destroy ( @{ $colliders{$key} } ) {
+                push( @particles_to_destroy, $particle_to_destroy );
+            }
         }
     }
-    return $min_particle;
+
+    for my $particle_to_destroy ( reverse sort { $a <=> $b }
+        @particles_to_destroy )
+    {
+        splice @{$particles}, $particle_to_destroy, 1;
+    }
+
 }
 
 #Main
@@ -92,10 +110,11 @@ my $iterations = $ARGV[1];
 my @particles = process_file($filename);
 
 for ( my $i = 0 ; $i < $iterations ; $i++ ) {
+
+    destroy_colliders( \@particles );
     increment( \@particles );
 }
 
-my $min_particle = min_particle( \@particles );
-
-print "Particle closest to <0,0,0> -> $min_particle\n";
+my $alive_particles = scalar @particles;
+print "alive -> $alive_particles\n";
 exit 0;
